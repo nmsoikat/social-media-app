@@ -1,7 +1,26 @@
 import './login.css';
+import { useContext, useRef } from 'react';
+import { loginCall } from '../../apiCalls';
+import { AuthContext } from '../../context/AuthContext';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Login() {
-  return <>
+  const email = useRef()
+  const password = useRef()
+
+  const { user, isFetching, error, dispatch } = useContext(AuthContext)
+
+  const loginHandler = (e) => {
+    e.preventDefault();
+
+    loginCall({
+      email: email.current.value,
+      password: password.current.value
+    }, dispatch)
+  }
+
+
+  return (<>
     <div className="login">
       <div className="login-wrapper">
         <div className="login-left">
@@ -11,15 +30,33 @@ export default function Login() {
           </div>
         </div>
         <div className="login-right">
-          <div className="login-box">
-            <input placeholder="Email" className="login-input" />
-            <input placeholder="Password" className="login-input" />
-            <button className='login-btn'>Log In</button>
+          <form className="login-box" onSubmit={loginHandler}>
+            <input
+              placeholder="Email"
+              className="login-input"
+              type="email"
+              required
+              ref={email} />
+
+            <input
+              placeholder="Password"
+              className="login-input"
+              type="password"
+              minLength="6"
+              required
+              ref={password} />
+
+            <button className='login-btn' type='submit' disabled={isFetching}>
+              {isFetching ? <CircularProgress color="inherit" size="20px" /> : "Log In"}
+            </button>
+
             <span className="password-forgot">Forgot Password?</span>
-            <button className='register-btn'>Create a New Account</button>
-          </div>
+            <button className='register-btn'>
+              {isFetching ? <CircularProgress color="inherit" size="20px" /> : "Create a New Account"}
+            </button>
+          </form>
         </div>
       </div>
     </div>
-  </>;
+  </>);
 }

@@ -67,6 +67,10 @@
 	cursor: pointer;
 }
 
+.login-btn:disabled{
+	cursor: not-allowed;
+}
+
 .password-forgot {
 	text-align: center;
 	color: #1775ee;
@@ -74,6 +78,7 @@
 }
 
 .register-btn {
+	width: 60%;
 	height: 40px;
 	border-radius: 10px;
 	border: none;
