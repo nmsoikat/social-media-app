@@ -1,6 +1,37 @@
 import './register.css';
+import { useRef } from 'react';
+import axios from 'axios'
+import { useNavigate, Link } from 'react-router-dom'
 
 export default function Register() {
+
+  const username = useRef()
+  const email = useRef()
+  const password = useRef()
+  const confirmPassword = useRef()
+
+  const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    if (password.current.value !== confirmPassword.current.value) {
+      confirmPassword.current.setCustomValidity('Confirm password dose not match!');
+    } else {
+      const user = {
+        username: username.current.value,
+        email: email.current.value,
+        password: password.current.value,
+      }
+      try {
+        await axios.post('/auth/register', user)
+        navigate('/login')
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+
   return <>
     <div className="login">
       <div className="login-wrapper">
@@ -10,17 +41,17 @@ export default function Register() {
             Connect with fiends and the world around you on Social APP.
           </div>
         </div>
-        <div className="login-right">
+        <form className="login-right" onSubmit={submitHandler}>
           <div className="login-box">
-          <h2 className="register-title">Create a New Account</h2>
-            <input placeholder="Username" className="login-input" />
-            <input placeholder="Email" className="login-input" />
-            <input placeholder="Password" className="login-input" />
-            <input placeholder="Password Confirm" className="login-input" />
-            <button className='login-btn'>Sign Up</button>
-            <button className='register-btn'>Log Into Account</button>
+            <h2 className="register-title">Create a New Account</h2>
+            <input placeholder="Username" ref={username} className="login-input" required />
+            <input placeholder="Email" ref={email} className="login-input" required />
+            <input placeholder="Password" type="password" minLength="6" ref={password} className="login-input" required />
+            <input placeholder="Password Confirm" type="password" ref={confirmPassword} className="login-input" required />
+            <button className='login-btn' type='submit'>Sign Up</button>
+            <button className='register-btn'><Link to="/login" style={{ textDecoration: 'none', color: 'white' }}>Log Into Account</Link></button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </>;
