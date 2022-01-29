@@ -1,9 +1,10 @@
-import { MoreVert } from '@mui/icons-material';
 import './post.css'
-import { useEffect, useState } from 'react';
+import { MoreVert } from '@mui/icons-material';
+import { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { format } from 'timeago.js'
 import { Link } from 'react-router-dom'
+import { AuthContext } from '../../context/AuthContext';
 
 export default function Post({ post }) {
 
@@ -13,6 +14,12 @@ export default function Post({ post }) {
 
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
+  const { user: currentUser } = useContext(AuthContext)
+
+  useEffect(() => {
+    setIsLike(post.likes.includes(currentUser._id))
+  }, [post.likes, currentUser._id])
+
   useEffect(() => {
     const fetchUser = async () => {
       const res = await axios.get(`/users?id=${post.userId}`)
@@ -21,9 +28,14 @@ export default function Post({ post }) {
     fetchUser();
   }, [post.userId])
 
-  const likeHandler = () => {
-    setLike(isLike ? like - 1 : like + 1)
-    setIsLike(!isLike);
+  const likeHandler = async () => {
+    try {
+      await axios.put(`/posts/${post._id}/like`, { userId: currentUser._id })
+      setLike(isLike ? like - 1 : like + 1)
+      setIsLike(!isLike);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return <div className='post'>
@@ -42,7 +54,7 @@ export default function Post({ post }) {
       </div>
       <div className="post-center">
         <span className="post-text">{post?.desc}</span>
-        <img className='post-img' src={PF+post.photo} alt="" />
+        <img className='post-img' src={PF + post.photo} alt="" />
       </div>
       <div className="post-bottom">
         <div className="post-bottom-left">
