@@ -15,7 +15,6 @@ const postRouter = require('./routes/postRouter');
 // APP
 const app = express();
 
-
 // CONNECTION
 mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
@@ -40,17 +39,24 @@ app.use(morgan('common'));
 
 
 // MULTER | FILE UPLOAD
-//destination
+// destination
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/images");
+    cb(null, "api/public/images/");
   },
-  filename: (req, file, cb) => {
-    cb(null, req.body.name);
+  filename: async (req, file, cb) => {
+    // console.log('before:', req.body);
+    const body = await req.body
+    // console.log(file);
+    // console.log('fileName:', body);
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+      cb(null, body.name)
+    }
   }
 })
 
 const upload = multer({ storage });
+
 app.post('/api/v1/upload', upload.single("file"), (req, res) => {
   try {
     return res.status(200).json("File uploaded successfully.");
@@ -68,6 +74,7 @@ app.use('/api/v1/posts', postRouter);
 app.get('/api/v1', (req, res) => {
   res.send('API is running')
 })
+
 
 // LISTEN
 const PORT = process.env.PORT || 5000;

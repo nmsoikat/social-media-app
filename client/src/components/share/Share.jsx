@@ -14,6 +14,7 @@ export default function Share() {
 
   const submitHandler = async (e) => {
     e.preventDefault()
+
     const newPost = {
       userId: user._id,
       desc: desc.current.value
@@ -23,11 +24,13 @@ export default function Share() {
       const data = new FormData()
       const fileName = Date.now() + file.name;
 
+      // store like array in array;
       data.append("file", file)
       data.append("name", fileName)
 
       newPost.photo = fileName;
-
+      // console.log([...data]);
+      // console.log(newPost);
       try {
         await axios.post("/upload", data);
       } catch (err) {
@@ -36,7 +39,7 @@ export default function Share() {
     }
 
     try {
-      await axios.post("/posts", newPost);
+      await axios.post("/posts", newPost);      
     } catch (err) {
       console.log(err);
     }
@@ -50,12 +53,12 @@ export default function Share() {
 
       <hr className="share-hr" />
 
-      <form className="share-bottom" onSubmit={submitHandler}>
+      <form className="share-bottom" encType="multipart/form-data" onSubmit={submitHandler}>
         <div className="share-options">
           <label id="file" className="share-option">
             <PermMedia htmlColor='tomato' className='share-option-icon' />
             <span className='share-option-text'>Photo or Video</span>
-            <input style={{ display: 'none' }} type="file" id="file" name='file' accept='.png,.jpeg,.jpg' onChange={(e) => setFile(e.target.files[0])} />
+            <input style={{ display: 'none' }} type="file" id="file" name='file' onChange={(e) => setFile(e.target.files[0])} />
           </label>
           <div className="share-option">
             <Label htmlColor='blue' className='share-option-icon' />

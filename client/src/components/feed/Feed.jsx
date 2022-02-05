@@ -4,7 +4,9 @@ import Post from '../post/Post';
 import axios from 'axios'
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import io from 'socket.io-client';
 
+const socket = io();
 
 export default function Feed({ username }) {
 
@@ -20,6 +22,12 @@ export default function Feed({ username }) {
     }
     fetchPosts();
   }, [username, user._id])
+
+  const newPostCreated = (data) => {
+    // console.log(data);
+  }
+
+  socket.on('post-created', newPostCreated)
 
   return <div className='feed'>
     <div className="feed-wrapper">
