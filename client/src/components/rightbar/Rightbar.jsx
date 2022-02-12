@@ -11,15 +11,43 @@ export default function Rightbar({ user }) {
 
   const [friends, setFriends] = useState([]);
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
-  const { user: currentUser } = useContext(AuthContext);
-  const [followed, setFollowed] = useState(false)
+  const { user: currentUser, dispatch } = useContext(AuthContext);
+  const [followed, setFollowed] = useState(currentUser.followings.includes(user?._id))
+
+  // console.log(followed);
+  // console.log(currentUser.followings);
 
   useEffect(() => {
-    setFollowed(currentUser.followings.includes())
-  }, [currentUser, user.id])
+    setFollowed(currentUser.followings.includes(user?._id))
+  }, [currentUser, user?._id])
 
-  const handleClick = () => {
+  useEffect(() => {
+      const getFriends = async () => {
+        try {
+          const friendList = await axios.get('/users/friends/' + user?._id)
+          setFriends(friendList.data)
+        } catch (err) {
+          console.log(err);
+        }
+      }
+  
+      getFriends();
+  }, [user?._id])
 
+  const handleClick = async () => {
+    try {
+      if (followed) {
+        await axios.put(`/users/${user._id}/unfollow`, { userId: currentUser._id })
+        dispatch({ type: 'UNFOLLOW', payload: user._id })
+      } else {
+        await axios.put(`/users/${user._id}/follow`, { userId: currentUser._id })
+        dispatch({ type: 'FOLLOW', payload: user._id })
+      }
+
+      setFollowed(!followed)
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const HomeRightbar = () => {
@@ -33,29 +61,16 @@ export default function Rightbar({ user }) {
         </div>
         <img className="rightbar-ad" src="/assets/ad.png" alt="" />
         <h4 className="rightbar-title">Online Friends</h4>
-        {/* <ul className="rightbar-friend-list">
-          {user.map(u => (
+        <ul className="rightbar-friend-list">
+          {user?.map(u => (
             <OnlineFriend key={u.id} user={u} />
           ))}
-        </ul> */}
+        </ul>
       </>
     )
   }
 
   const ProfileRightbar = () => {
-    useEffect(() => {
-      const getFriends = async () => {
-        try {
-          const friendList = await axios.get('/users/friends/' + user._id)
-          setFriends(friendList.data)
-        } catch (err) {
-          console.log(err);
-        }
-      }
-
-      getFriends();
-    }, [user._id])
-
     return (
       <>
         {currentUser.username !== user.username && (
@@ -84,7 +99,7 @@ export default function Rightbar({ user }) {
         <div className="rightbar-followings">
           {
             friends.map(friend => (
-              <Link to={`/profile/${friend.username}`} style={{ textDecoration: 'none' }}>
+              <Link key={friend._id} to={`/profile/${friend.username}`} style={{ textDecoration: 'none' }}>
                 <div className="rightbar-following">
                   <img className='rightbar-following-img' src={`${(friend.profilePicture && PF + friend.profilePicture) || PF + '/person/noAvatar.png'}`} alt="" />
                   <span className="rightbar-following-name">{friend.username}</span>
