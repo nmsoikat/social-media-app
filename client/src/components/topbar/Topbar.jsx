@@ -31,10 +31,10 @@ export default function Topbar() {
             <Person />
             <span className="topbar-icon-badge">1</span>
           </div>
-          <div className="topbar-icon-item">
+          <Link to="/messenger" className="topbar-icon-item">
             <Chat />
             <span className="topbar-icon-badge">2</span>
-          </div>
+          </Link>
           <div className="topbar-icon-item">
             <NotificationsActive />
             <span className="topbar-icon-badge">1</span>

@@ -6,6 +6,7 @@ import Register from './pages/register/Register';
 import { Routes, Route } from "react-router-dom";
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import Messenger from './pages/messenger/Messenger';
 // import RequiredAuth from './RequiredAuth';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Route path='/' element={user ? <Home /> : <Register />} />
       <Route path='/login' element={user ? <Home /> : <Login />} />
       <Route path='/register' element={user ? <Home /> : <Register />} />
+      <Route path='/messenger' element={!user ? <Register /> : <Messenger />} />
       <Route path='/profile/:username' element={user ? <Profile /> : <Login />} />
     </Routes>
   );
