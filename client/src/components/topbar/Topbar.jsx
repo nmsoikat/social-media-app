@@ -31,7 +31,7 @@ export default function Topbar() {
             <Person />
             <span className="topbar-icon-badge">1</span>
           </div>
-          <Link to="/messenger" className="topbar-icon-item">
+          <Link to="/messenger" style={{color: '#fff'}} className="topbar-icon-item">
             <Chat />
             <span className="topbar-icon-badge">2</span>
           </Link>
