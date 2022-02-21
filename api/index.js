@@ -11,6 +11,8 @@ const path = require('path');
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
 const postRouter = require('./routes/postRouter');
+const conversationRouter = require('./routes/conversationRouter');
+const messageRouter = require('./routes/messageRouter');
 
 // APP
 const app = express();
@@ -70,6 +72,8 @@ app.post('/api/v1/upload', upload.single("file"), (req, res) => {
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/posts', postRouter);
+app.use('/api/v1/conversation', conversationRouter);
+app.use('/api/v1/message', messageRouter);
 
 app.get('/api/v1', (req, res) => {
   res.send('API is running')
