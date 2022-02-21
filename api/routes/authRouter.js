@@ -50,7 +50,9 @@ router.post('/login', async (req, res) => {
       return
     }
 
-    res.status(200).json(user);
+    const { password: passwordAsP, ...userWithoutPass } = user._doc;
+
+    res.status(200).json(userWithoutPass);
   } catch (err) {
     res.status(500).json(err)
   }
