@@ -3,7 +3,7 @@ import Topbar from '../../components/topbar/Topbar'
 import Conversation from "../../components/conversation/Conversation"
 import Message from "../../components/message/Message"
 import ChatOnline from "../../components/chatOnline/ChatOnline"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useState, useRef } from "react"
 import { AuthContext } from "../../context/AuthContext"
 import axios from 'axios'
 
@@ -15,6 +15,9 @@ function Messenger() {
   //find conversation and set according current-chat
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState("");
+
+  //get ref of new message element 
+  const newMessageRef = useRef();
 
   const { user:currentUser } = useContext(AuthContext)
 
@@ -63,6 +66,13 @@ function Messenger() {
       console.log(error);
     }
   }
+
+  // scroll to new message 
+  // why useEffect here, so this can apply when message load or create
+  useEffect(() => {
+    // need reference to show this element
+    newMessageRef.current?.scrollIntoView({behavior: "smooth"})
+  }, [messages])
   return (
     <>
       <Topbar />
@@ -83,7 +93,13 @@ function Messenger() {
               currentChat ?
                 (<>
                   <div className="chat-box-top">
-                    {messages.map((m,index) => <Message key={index} message={m} own={m.sender === currentUser._id} currentUser={currentUser} />)}
+                    {messages.map((m,index) => 
+                    (
+                      <div ref={newMessageRef}>
+                        <Message key={index} message={m} own={m.sender === currentUser._id} currentUser={currentUser} />
+                      </div>
+                    )
+                    )}
                   </div>
                   <div className="chat-box-bottom">
                     <textarea cols="30" rows="10" className="chat-message-input" placeholder="write something..." value={newMessage} onChange={(e)=> setNewMessage(e.target.value)}></textarea>
