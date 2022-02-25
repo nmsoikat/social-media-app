@@ -6,6 +6,7 @@ import ChatOnline from "../../components/chatOnline/ChatOnline"
 import { useContext, useEffect, useState, useRef } from "react"
 import { AuthContext } from "../../context/AuthContext"
 import axios from 'axios'
+import {io} from "socket.io-client"
 
 function Messenger() {
   const [conversations, setConversations] = useState([])
@@ -19,7 +20,23 @@ function Messenger() {
   //get ref of new message element 
   const newMessageRef = useRef();
 
+  //socket
+  const [socket, setSocket] = useState(null)
+
   const { user:currentUser } = useContext(AuthContext)
+
+  useEffect(() => {
+    // it is not http
+    // it is web socket
+    setSocket(io('ws://localhost:8900')) //set socket server url
+
+  }, [])
+
+  useEffect(() => {
+    socket?.on("welcome", message => {
+      console.log(message);
+    })
+  },  [socket])
 
   useEffect(() => {
     const getConversation = async () => {
@@ -95,8 +112,8 @@ function Messenger() {
                   <div className="chat-box-top">
                     {messages.map((m,index) => 
                     (
-                      <div ref={newMessageRef}>
-                        <Message key={index} message={m} own={m.sender === currentUser._id} currentUser={currentUser} />
+                      <div key={index} ref={newMessageRef}>
+                        <Message message={m} own={m.sender === currentUser._id} currentUser={currentUser} />
                       </div>
                     )
                     )}
