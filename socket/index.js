@@ -1,4 +1,4 @@
-const io = require('socket.io')(8900,{
+const io = require('socket.io')(8900, {
   cors: {
     origin: 'http://localhost:3000'
   }
@@ -9,12 +9,17 @@ let users = []
 
 // user added online
 const addUser = (userId, socketId) => {
-  !users.some(user => user.userId === userId) && users.push({userId, socketId})
+  !users.some(user => user.userId === userId) && users.push({ userId, socketId })
 }
 
 // remove from online
 const removeUser = (socketId) => {
   users = users.filter(user => user.socketId !== socketId)
+}
+
+// get user
+const getUser = (userId) => {
+  return users.find(user => user.userId === userId)
 }
 
 // every connection
@@ -30,6 +35,15 @@ io.on("connection", (socket) => {
 
     //send to client
     io.emit("getUsers", users) // online users
+  })
+
+  // SEND AND GET MESSAGE
+  socket.on("sendMessage", ({ senderId, receiverId, text }) => { // receive from client
+    const whoReceive = getUser(receiverId)
+    
+    //send to client //specific
+    io.to(whoReceive.socketId).emit("getMessage", { senderId, text })
+
   })
 
 

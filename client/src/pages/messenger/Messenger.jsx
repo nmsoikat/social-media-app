@@ -9,24 +9,51 @@ import axios from 'axios'
 import { io } from "socket.io-client"
 
 function Messenger() {
+  //get ref of new message element 
+  const newMessageRef = useRef();
+
   const { user: currentUser } = useContext(AuthContext)
 
+  //find conversation and set according current-chat
   const [conversations, setConversations] = useState([])
+
   //select user from left bar
   const [currentChat, setCurrentChat] = useState(null)
 
-  //find conversation and set according current-chat
+  // message from DB and Update DOM
   const [messages, setMessages] = useState([])
+
+  // dom new message
   const [newMessage, setNewMessage] = useState("");
 
-  //get ref of new message element 
-  const newMessageRef = useRef();
+  // new message through socket server
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+
 
   // ------------ Socket Start ------------
   const socket = useRef()
   useEffect(() => {
+    //init
     socket.current = io('ws://localhost:8900')
+
+    //arrival message
+    socket.current.on("getMessage", ({ senderId, text }) => {
+      setArrivalMessage({
+        sender: senderId,
+        text,
+        conversationId: Date.now()
+      })
+    })
+
   }, [])
+
+  //if any arrival message update dom
+  useEffect(() => {
+    arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender) &&
+      setMessages((prev) => [...prev, arrivalMessage])
+
+  }, [arrivalMessage, currentChat])
 
   useEffect(() => {
     //send client to socket-server
@@ -79,15 +106,24 @@ function Messenger() {
     }
 
     try {
-      //same to db
+      //send to db
       const { data } = await axios.post("/message", message);//return created data
 
-      setMessages([...messages, data]) // frontend dom update
+      //only sender frontend dom update
+      setMessages([...messages, data]) 
 
       setNewMessage(""); //reset text box
     } catch (error) {
       console.log(error);
     }
+
+    //send to socket server 
+    const receiverId = currentChat.members.find(member => member !== currentUser._id);
+    socket.current.emit("sendMessage", {
+      senderId: currentUser._id,
+      receiverId,
+      text: newMessage
+    })
   }
 
   // scroll to new message 
