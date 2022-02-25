@@ -6,9 +6,11 @@ import ChatOnline from "../../components/chatOnline/ChatOnline"
 import { useContext, useEffect, useState, useRef } from "react"
 import { AuthContext } from "../../context/AuthContext"
 import axios from 'axios'
-import {io} from "socket.io-client"
+import { io } from "socket.io-client"
 
 function Messenger() {
+  const { user: currentUser } = useContext(AuthContext)
+
   const [conversations, setConversations] = useState([])
   //select user from left bar
   const [currentChat, setCurrentChat] = useState(null)
@@ -20,24 +22,26 @@ function Messenger() {
   //get ref of new message element 
   const newMessageRef = useRef();
 
-  //socket
-  const [socket, setSocket] = useState(null)
-
-  const { user:currentUser } = useContext(AuthContext)
-
+  // ------------ Socket Start ------------
+  const socket = useRef()
   useEffect(() => {
-    // it is not http
-    // it is web socket
-    setSocket(io('ws://localhost:8900')) //set socket server url
-
+    socket.current = io('ws://localhost:8900')
   }, [])
 
   useEffect(() => {
-    socket?.on("welcome", message => {
-      console.log(message);
-    })
-  },  [socket])
+    //send client to socket-server
+    socket.current.emit("addUser", currentUser._id)
 
+    // receive from server
+    socket.current.on("getUsers", (users) => {
+      console.log(users);
+    })
+
+  }, [currentUser])
+
+  // ------------ Socket End ------------
+
+  //GET CONVERSATION
   useEffect(() => {
     const getConversation = async () => {
       try {
@@ -51,6 +55,7 @@ function Messenger() {
     getConversation()
   }, [])
 
+  //GET MESSAGES
   useEffect(() => {
     const getMessage = async () => {
       try {
@@ -64,7 +69,8 @@ function Messenger() {
     getMessage()
   }, [currentChat])
 
-  const newMessageHandler = async(e) => {
+  //CREATE MESSAGE AND SEND
+  const newMessageHandler = async (e) => {
     e.preventDefault()
     const message = {
       sender: currentUser._id,
@@ -74,7 +80,7 @@ function Messenger() {
 
     try {
       //same to db
-      const {data} = await axios.post("/message", message);//return created data
+      const { data } = await axios.post("/message", message);//return created data
 
       setMessages([...messages, data]) // frontend dom update
 
@@ -88,8 +94,10 @@ function Messenger() {
   // why useEffect here, so this can apply when message load or create
   useEffect(() => {
     // need reference to show this element
-    newMessageRef.current?.scrollIntoView({behavior: "smooth"})
+    newMessageRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
+
   return (
     <>
       <Topbar />
@@ -97,7 +105,7 @@ function Messenger() {
         <div className="chat-menu">
           <div className="chat-menu-wrapper">
             <input type="text" placeholder="search for friends" className="chat-menu-input" />
-            {conversations.map((c,index) =>
+            {conversations.map((c, index) =>
               <div key={index} onClick={() => setCurrentChat(c)}>
                 <Conversation conversation={c} currentUser={currentUser} />
               </div>
@@ -110,7 +118,7 @@ function Messenger() {
               currentChat ?
                 (<>
                   <div className="chat-box-top">
-                    {messages.map((m,index) => 
+                    {messages.map((m, index) =>
                     (
                       <div key={index} ref={newMessageRef}>
                         <Message message={m} own={m.sender === currentUser._id} currentUser={currentUser} />
@@ -119,7 +127,7 @@ function Messenger() {
                     )}
                   </div>
                   <div className="chat-box-bottom">
-                    <textarea cols="30" rows="10" className="chat-message-input" placeholder="write something..." value={newMessage} onChange={(e)=> setNewMessage(e.target.value)}></textarea>
+                    <textarea cols="30" rows="10" className="chat-message-input" placeholder="write something..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)}></textarea>
                     <button className="chat-submit-btn" onClick={newMessageHandler}>Send</button>
                   </div>
                 </>) : (<p className="no-conversation-text">Open a conversation to start chat</p>)
