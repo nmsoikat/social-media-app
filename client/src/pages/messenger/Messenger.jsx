@@ -30,6 +30,10 @@ function Messenger() {
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
 
+  // online users
+  const [onlineUsers, setOnlineUsers] = useState(null)
+
+
   // ------------ Socket Start ------------
   const socket = useRef()
   useEffect(() => {
@@ -56,12 +60,14 @@ function Messenger() {
   }, [arrivalMessage, currentChat])
 
   useEffect(() => {
-    //send client to socket-server
+    // send client to socket-server
     socket.current.emit("addUser", currentUser._id)
 
     // receive from server
     socket.current.on("getUsers", (users) => {
-      console.log(users);
+      setOnlineUsers(
+        currentUser.followings?.filter(fo => users.some(u => u.userId === fo))
+      )
     })
 
   }, [currentUser])
@@ -172,7 +178,7 @@ function Messenger() {
         </div>
         <div className="chat-online">
           <div className="chat-online-wrapper">
-            <ChatOnline />
+            <ChatOnline onlineUsers = {onlineUsers} currentUserId={currentUser._id} setCurrentChat={setCurrentChat} />
           </div>
         </div>
       </div>

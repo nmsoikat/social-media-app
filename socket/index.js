@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     const whoReceive = getUser(receiverId)
     
     //send to client //specific
-    io.to(whoReceive.socketId).emit("getMessage", { senderId, text })
+    io.to(whoReceive?.socketId).emit("getMessage", { senderId, text })
 
   })
 
