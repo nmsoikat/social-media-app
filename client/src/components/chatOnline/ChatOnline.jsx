@@ -30,7 +30,7 @@ function ChatOnline({onlineUsers, currentUserId, setCurrentChat}) {
             {/* <img className='chat-online-img' src={o?.profilePicture ? PF+o.profilePicture : PF+ "person/noAvatar.png"} alt="" /> */}
             <div className="chat-online-badge"></div>
           </div>
-          {/* <span className="chat-online-name">{o?.username}</span> */}
+          <span className="chat-online-name">john</span>
         </div>
         // ))
       }
