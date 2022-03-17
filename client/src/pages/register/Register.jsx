@@ -38,7 +38,7 @@ export default function Register() {
         <div className="login-left">
           <h3 className="login-logo">Social APP</h3>
           <div className="span login-desc">
-            Connect with fiends and the world around you on Social APP.
+            Connect with friends and the world around you on Social APP.
           </div>
         </div>
         <form className="login-right" onSubmit={submitHandler}>

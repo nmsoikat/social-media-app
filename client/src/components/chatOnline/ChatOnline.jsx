@@ -3,36 +3,44 @@ import { useEffect, useState } from 'react'
 import './chatOnline.css'
 
 function ChatOnline({onlineUsers, currentUserId, setCurrentChat}) {
-  const [friends, setFriends] = useState([])
+  const [currentUserFriends, setCurrentUserFriends] = useState([])
   const [onlineFriends, setOnlineFriends] = useState([])
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
-  // useEffect(() => {
-  //   const getFriends = async () => {
-  //     const res = await axios.get("/users/friends/"+ currentUserId)
-  //     setFriends(res.data)
-  //   }
+  // get all friends of current users
+  useEffect(() => {
+    const getFriends = async () => {
+      const res = await axios.get("/users/friends/"+ currentUserId)
+      setCurrentUserFriends(res.data)
+    }
 
-  //   getFriends()
+    getFriends()
 
-  // }, [currentUserId])
+  }, [currentUserId])
 
-  // useEffect(()=> {
-  //   setOnlineFriends(onlineFriends.filter((f) => onlineUsers.includes(f._id)))
-  // }, [friends, onlineUsers])
+  useEffect(()=> {
+    setOnlineFriends(currentUserFriends.filter((f) => onlineUsers.includes(f._id)))
+  }, [currentUserFriends, onlineUsers])
   
+  const handleClick = async (onlineF) => {
+    try {
+      // const res = 
+    } catch (err) {
+      console.log(err);
+    }
+  }
   return (
     <div className='chat-online'>
       {
-        // onlineFriends.map(o => (
-        <div className="chat-online-friend">
+        onlineFriends?.map(onlineF => (
+        <div key={onlineF._id} className="chat-online-friend" onClick={(onlineF) => {handleClick(onlineF)}}>
           <div className="chat-online-img-container">
-            {/* <img className='chat-online-img' src={o?.profilePicture ? PF+o.profilePicture : PF+ "person/noAvatar.png"} alt="" /> */}
+            <img className='chat-online-img' src={onlineF?.profilePicture ? PF+onlineF.profilePicture : PF+ "person/noAvatar.png"} alt="" />
             <div className="chat-online-badge"></div>
           </div>
-          <span className="chat-online-name">john</span>
+          <span className="chat-online-name">{onlineF.username}</span>
         </div>
-        // ))
+        ))
       }
     </div>
   )
