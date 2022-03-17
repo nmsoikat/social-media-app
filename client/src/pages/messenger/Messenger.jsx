@@ -87,7 +87,7 @@ function Messenger() {
     }
 
     getConversation()
-  }, [])
+  }, [currentUser._id])
 
   //GET MESSAGES
   useEffect(() => {
@@ -125,7 +125,7 @@ function Messenger() {
     }
 
     //send to socket server 
-    const receiverId = currentChat.members.find(member => member !== currentUser._id);
+    const receiverId = currentChat.members?.find(member => member !== currentUser._id);
     socket.current.emit("sendMessage", {
       senderId: currentUser._id,
       receiverId,
